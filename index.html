@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Be My Valentine?</title>
+  <style>
+    :root {
+      --bg1: #fff0f6;
+      --bg2: #ffe3ec;
+      --card: rgba(255,255,255,0.85);
+      --text: #2b2b2b;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      overflow: hidden;
+    }
+
+    .card {
+      width: min(92vw, 520px);
+      padding: 28px 22px;
+      border-radius: 18px;
+      background: var(--card);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 34px);
+      letter-spacing: 0.3px;
+    }
+
+    p {
+      margin: 0 0 18px;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .name {
+      font-weight: 700;
+      color: #d61f69;
+    }
+
+    .btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      position: relative;
+      height: 56px;
+    }
+
+    button {
+      border: 0;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.2s ease;
+      user-select: none;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    #yesBtn {
+      background: linear-gradient(135deg, #ff4d8d, #ff2d6f);
+      color: white;
+      box-shadow: 0 10px 22px rgba(255,45,111,0.25);
+    }
+    #yesBtn:hover { filter: brightness(1.05); }
+
+    #noBtn {
+      background: #f1f3f5;
+      color: #343a40;
+      position: absolute;
+      left: 50%;
+      transform: translateX(130px);
+      box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+    }
+
+    .result {
+      margin-top: 16px;
+      font-size: 18px;
+      font-weight: 650;
+      min-height: 26px;
+    }
+
+    .small {
+      margin-top: 8px;
+      font-size: 13px;
+      opacity: 0.75;
+    }
+
+    /* floating hearts */
+    .heart {
+      position: fixed;
+      bottom: -20px;
+      font-size: 20px;
+      animation: floatUp linear forwards;
+      pointer-events: none;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.15));
+    }
+    @keyframes floatUp {
+      from { transform: translateY(0) translateX(0) scale(1); opacity: 1; }
+      to   { transform: translateY(-120vh) translateX(var(--drift)) scale(1.2); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <h1>Hey <span class="name" id="herName">Baby</span> 💖</h1>
+    <p>Will you be my Valentine?</p>
+
+    <div class="btns" id="btnArea">
+      <button id="yesBtn">Yes 🥰</button>
+      <button id="noBtn">No 🙃</button>
+    </div>
+
+    <div class="result" id="result"></div>
+    <div class="small">Tip: you can personalize the name + message inside the code.</div>
+  </div>
+
+  <script>
+    // ✅ Personalize these:
+    const GF_NAME = "Your Name Here"; // e.g. "Simran"
+    const YES_MESSAGE = "YAY!! 💘 I love you. Date night is on me 😄";
+
+    // set name
+    document.getElementById("herName").textContent = GF_NAME;
+
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn  = document.getElementById("noBtn");
+    const btnArea = document.getElementById("btnArea");
+    const result = document.getElementById("result");
+
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function moveNoButton() {
+      const area = btnArea.getBoundingClientRect();
+      const btn  = noBtn.getBoundingClientRect();
+
+      // keep it inside the button area
+      const padding = 6;
+      const maxX = area.width - btn.width - padding;
+      const maxY = area.height - btn.height - padding;
+
+      const x = randomInt(padding, Math.max(padding, Math.floor(maxX)));
+      const y = randomInt(padding, Math.max(padding, Math.floor(maxY)));
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+      noBtn.style.transform = "none";
+      noBtn.style.position = "absolute";
+    }
+
+    noBtn.addEventListener("mouseenter", moveNoButton);
+    noBtn.addEventListener("click", moveNoButton);
+
+    function spawnHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.textContent = ["💖","💘","💕","💗","💓","❤️"][randomInt(0,5)];
+      heart.style.left = randomInt(0, 100) + "vw";
+      heart.style.setProperty("--drift", randomInt(-40, 40) + "vw");
+      heart.style.animationDuration = randomInt(2500, 4500) + "ms";
+      heart.style.fontSize = randomInt(16, 34) + "px";
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 5000);
+    }
+
+    let heartTimer = null;
+
+    yesBtn.addEventListener("click", () => {
+      result.textContent = YES_MESSAGE;
+      noBtn.style.display = "none";
+      yesBtn.textContent = "Aww 🥹";
+      yesBtn.disabled = true;
+
+      // hearts burst
+      for (let i = 0; i < 20; i++) setTimeout(spawnHeart, i * 60);
+
+      // keep floating hearts for a bit
+      if (!heartTimer) {
+        heartTimer = setInterval(spawnHeart, 220);
+        setTimeout(() => {
+          clearInterval(heartTimer);
+          heartTimer = null;
+        }, 3500);
+      }
+    });
+
+    // put the "No" somewhere reasonable on load
+    window.addEventListener("load", () => setTimeout(moveNoButton, 50));
+  </script>
+</body>
+</html>
